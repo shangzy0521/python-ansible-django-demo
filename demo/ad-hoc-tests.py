@@ -24,11 +24,12 @@ from ansible.module_utils.common.collections import ImmutableDict
 dl = DataLoader()
 my_inventory = InventoryManager(loader=dl, sources=["hosts"])
 variable_manager = VariableManager(loader=dl, inventory=my_inventory)
-my_inventory.add_group('mygroup')
-my_group = Group(name='mygroup')
+# my_inventory.add_group('mygroup')
+# my_group = Group(name='mygroup')
 
 # my_host = Host(name='182.61.17.1599')
-my_inventory.add_host(host='myhost', group='mygroup')
+# my_inventory.add_host(host='myhost', group='mygroup')
+my_inventory.add_host(host='myhost')
 
 variable_manager.set_host_variable(host='myhost', varname="ansible_ssh_host", value='182.61.17.159')
 variable_manager.set_host_variable(host='myhost', varname="ansible_ssh_port", value=22)

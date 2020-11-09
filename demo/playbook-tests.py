@@ -1,3 +1,4 @@
+import json
 import sys
 from collections import namedtuple
 from optparse import Values
@@ -20,28 +21,61 @@ from ansible.playbook.play import Play
 from ansible.executor.task_queue_manager import TaskQueueManager
 # 核心类执行playbook
 from ansible.executor.playbook_executor import PlaybookExecutor
+# 状态回调，成功失败的状态
+from ansible.plugins.callback import CallbackBase
 
 from ansible import context
 from ansible.module_utils.common.collections import ImmutableDict
 
-class ResultCallback(CallbackBase):
+class PlaybookCallbackBase(CallbackBase):
     """
-    重写callbackBase类的部分方法
+    playbook的callback改写，格式化输出playbook执行结果
     """
+    CALLBACK_VERSION = 2.0
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.host_ok = {}
-        self.host_unreachable = {}
-        self.host_failed = {}
         self.task_ok = {}
+        self.task_unreachable = {}
+        self.task_failed = {}
+        self.task_skipped = {}
+        self.task_status = {}
+
     def v2_runner_on_unreachable(self, result):
-        self.host_unreachable[result._host.get_name()] = result
+        """
+        重写 unreachable 状态
+        :param result:  这是父类里面一个对象，这个对象可以获取执行任务信息
+        """
+        self.task_unreachable[result._host.get_name()] = result
 
-    def v2_runner_on_ok(self, result, **kwargs):
-        self.host_ok[result._host.get_name()] = result
+    def v2_runner_on_ok(self, result, *args, **kwargs):
+        """
+        重写 ok 状态
+        :param result:
+        """
+        self.task_ok[result._host.get_name()] = result
 
-    def v2_runner_on_failed(self, result, **kwargs):
-        self.host_failed[result._host.get_name()] = result
+    def v2_runner_on_failed(self, result, *args, **kwargs):
+        """
+        重写 failed 状态
+        :param result:
+        """
+        self.task_failed[result._host.get_name()] = result
+
+    def v2_runner_on_skipped(self, result):
+        self.task_skipped[result._host.get_name()] = result
+
+    def v2_playbook_on_stats(self, stats):
+        hosts = sorted(stats.processed.keys())
+        for h in hosts:
+            t = stats.summarize(h)
+            self.task_status[h] = {
+                "ok": t["ok"],
+                "changed": t["changed"],
+                "unreachable": t["unreachable"],
+                "skipped": t["skipped"],
+                "failed": t["failed"]
+            }
 
 def playbook(host):
     connection = 'smart'  # 连接方式 local 本地方式，smart ssh方式
@@ -108,56 +142,37 @@ def playbook(host):
     vm.set_host_variable(host=host, varname="ansible_ssh_user", value='root')
     vm.set_host_variable(host=host, varname="ansible_ssh_pass", value='Vinc08#22')
 
-    # 此方式已不适用
-    # Options = namedtuple("Options", ["connection", "remote_user", "ask_sudo_pass", "verbosity", "ack_pass",
-    #                                  "module_path", "forks", "become", "become_method", "become_user", "check",
-    #                                  "listhosts", "listtasks", "listtags", "syntax", "sudo_user", "sudo", "diff"
-    # ])
-    # options = Options(connection='smart', remote_user=None, ack_pass=None, sudo_user=None, forks=5, sudo=None,
-    #                   ask_sudo_pass=False,verbosity=5, module_path=None, become=None, become_method=None,
-    #                   become_user=None, check=False, diff=False,listhosts=None, listtasks=None, listtags=None,
-    #                   syntax=None)
-
-    # 执行选项，这个类不是ansible的类，这个的功能就是为了构造参数
-    # options = {'connection': 'smart', 'syntax': None,}
-    # options = {'connection': 'smart', 'syntax': None, 'start_at_task': '' }
-    # ops = Values(options)
-    # context._init_global_context(ops)
-
-    # play的执行对象和模块，这里设置hosts，其实是因为play把play_source和资产信息关联后，执行的play的时候它会去资产信息中设置的sources的hosts文件中
-    # 找你在play_source中设置的hosts是否在资产管理类里面。
-    # play_source = dict(name="Ansible Play",  # 任务名称
-    #                    hosts=host,  # 目标主机，可以填写具体主机也可以是主机组名称
-    #                    gather_facts="no",  # 是否收集配置信息
-    #                    # tasks是具体执行的任务，列表形式，每个具体任务都是一个字典
-    #                    tasks=[dict(action=dict(module=module, args=args))])
-
-    # 定义play
-    # play = Play().load(play_source, variable_manager=vm, loader=dl)
 
     passwords = dict()  # 这个可以为空，因为在hosts文件中
-    # 实例化回调插件对象
-    results_callback = ResultCallback()
 
-    # tqm = TaskQueueManager(
-    #     inventory=im,
-    #     variable_manager=vm,
-    #     loader=dl,
-    #     passwords=passwords,
-    # )
-
-    # try:
-    #     playbook = PlaybookExecutor(playbooks=["os.yml"], inventory=im, variable_manager=vm, loader=dl,
-    #                                 passwords=passwords)
-    #     playbook.run()
-    # except Exception as err:
-    #     print(err)
 
     playbook = PlaybookExecutor(playbooks=["./os.yml"], inventory=im, variable_manager=vm, loader=dl,passwords=passwords)
-    # playbook._tqm._stdout_callback = results_callback
-    result = playbook.run()
+    playbook_callback = PlaybookCallbackBase()
+    playbook._tqm._stdout_callback = playbook_callback  # 配置callback
+    # result = playbook.run()
+    # print(result)
+    playbook.run()
+    # print(callback.task_ok.items())  # 它会返回2个东西，一个主机一个是执行结果对象
+    result_raw = {"ok": {}, "failed": {}, "unreachable": {}, "skipped": {}, "status": {}}
+    for host, result in playbook_callback.task_ok.items():
+        result_raw["ok"][host] = result._result
 
-    print(result)
+    for host, result in playbook_callback.task_failed.items():
+        result_raw["failed"][host] = result._result
+
+    for host, result in playbook_callback.task_unreachable.items():
+        result_raw["unreachable"][host] = result._result
+
+    for host, result in playbook_callback.task_skipped.items():
+        result_raw["skipped"][host] = result._result
+
+    for host, result in playbook_callback.task_status.items():
+        result_raw["status"][host] = result._result
+
+    # 最终打印结果，并且使用 JSON 继续格式化
+    print(json.dumps(result_raw, indent=4))
+    return json.dumps(result_raw)
+
 
 if __name__ == "__main__":
     playbook(host='182.61.17.159')

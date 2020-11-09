@@ -21,8 +21,10 @@ from ansible.executor.playbook_executor import PlaybookExecutor
 from ansible import context
 from ansible.module_utils.common.collections import ImmutableDict
 
+# InventoryManager类的调用方式
 dl = DataLoader()
-my_inventory = InventoryManager(loader=dl, sources=["hosts"])
+# loader= 表示是用什么方式来读取文件  sources=就是资产文件列表，里面可以是相对路径也可以是绝对路径
+im = InventoryManager(loader=dl, sources=["hosts"])
 variable_manager = VariableManager(loader=dl, inventory=my_inventory)
 # my_inventory.add_group('mygroup')
 # my_group = Group(name='mygroup')

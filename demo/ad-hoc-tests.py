@@ -25,6 +25,39 @@ from ansible.plugins.callback import CallbackBase
 from ansible import context
 from ansible.module_utils.common.collections import ImmutableDict
 
+class AdhocCallbackBase(CallbackBase):
+    """
+    通过api调用ac-hoc的时候输出结果很多时候不是很明确或者说不是我们想要的结果，主要它还是输出到STDOUT，而且通常我们是在工程里面执行
+    这时候就需要后台的结果前端可以解析，正常的API调用输出前端很难解析。 对比之前的执行 adhoc()查看区别。
+    为了实现这个目的就需要重写CallbackBase类，需要重写下面三个方法
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)  # python3中重载父类构造方法的方式，在Python2中写法会有区别。
+        self.host_ok = {}
+        self.host_unreachable = {}
+        self.host_failed = {}
+
+    def v2_runner_on_unreachable(self, result):
+        """
+        重写 unreachable 状态
+        :param result:  这是父类里面一个对象，这个对象可以获取执行任务信息
+        """
+        self.host_unreachable[result._host.get_name()] = result
+
+    def v2_runner_on_ok(self, result, *args, **kwargs):
+        """
+        重写 ok 状态
+        :param result:
+        """
+        self.host_ok[result._host.get_name()] = result
+
+    def v2_runner_on_failed(self, result, *args, **kwargs):
+        """
+        重写 failed 状态
+        :param result:
+        """
+        self.host_failed[result._host.get_name()] = result
+
 def ad_hoc(host,ssh_port,ssh_user,ssh_pwd,module,args):
     """
     ad-hoc 调用
@@ -102,7 +135,6 @@ def ad_hoc(host,ssh_port,ssh_user,ssh_pwd,module,args):
     vm.set_host_variable(host=host, varname="ansible_ssh_user", value=ssh_user)
     vm.set_host_variable(host=host, varname="ansible_ssh_pass", value=ssh_pwd)
 
-
     # play的执行对象和模块，这里设置hosts，其实是因为play把play_source和资产信息关联后，执行的play的时候它会去资产信息中设置的sources的hosts文件中
     # 找你在play_source中设置的hosts是否在资产管理类里面。
     play_source = dict(name="Ansible ad-hoc Play",  # 任务名称
@@ -115,16 +147,33 @@ def ad_hoc(host,ssh_port,ssh_user,ssh_pwd,module,args):
     play = Play().load(play_source, variable_manager=vm, loader=dl)
 
     passwords = dict()  # 这个可以为空，因为在hosts文件中
+    adhoc_callback = AdhocCallbackBase()  # 实例化自定义callback
 
     tqm = TaskQueueManager(
         inventory=im,
         variable_manager=vm,
         loader=dl,
         passwords=passwords,
+        stdout_callback=adhoc_callback  # 配置使用自定义callback
     )
 
-    result = tqm.run(play)
-    print(result)
+    # result = tqm.run(play)
+    # print(result)
+    tqm.run(play)
+    # print(mycallback.host_ok.items())  # 它会返回2个东西，一个主机一个是执行结果对象
+    # 定义数据结构
+    result_raw = {"success": {}, "failed": {}, "unreachable": {}}
+    # 如果成功那么  mycallback.host_ok.items() 才可以遍历，上面的任务肯定能成功所以我们就直接遍历这个
+    for host, result in adhoc_callback.host_ok.items():
+        result_raw["success"][host] = result._result
+
+    for host, result in adhoc_callback.host_failed.items():
+        result_raw["failed"][host] = result._result
+
+    for host, result in adhoc_callback.host_unreachable.items():
+        result_raw["unreachable"][host] = result._result
+
+    print(result_raw)
 
 if __name__ == "__main__":
     ad_hoc(host='182.61.17.159', ssh_port=22, ssh_user='root', ssh_pwd='Vinc08#22', module='shell', args='whoami')

@@ -19,6 +19,8 @@ from ansible.playbook.play import Play
 from ansible.executor.task_queue_manager import TaskQueueManager
 # 核心类执行playbook
 from ansible.executor.playbook_executor import PlaybookExecutor
+# 状态回调，成功失败的状态
+from ansible.plugins.callback import CallbackBase
 
 from ansible import context
 from ansible.module_utils.common.collections import ImmutableDict

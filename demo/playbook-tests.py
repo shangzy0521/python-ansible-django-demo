@@ -6,6 +6,7 @@ from optparse import Values
 # 用于读取YAML和JSON格式的文件
 from ansible.parsing.dataloader import DataLoader
 # 用于存储各类变量信息
+from ansible.plugins.callback import CallbackBase
 from ansible.vars.manager import VariableManager
 # 用于导入资产文件
 from ansible.inventory.manager import InventoryManager
@@ -23,7 +24,65 @@ from ansible.executor.playbook_executor import PlaybookExecutor
 from ansible import context
 from ansible.module_utils.common.collections import ImmutableDict
 
+class ResultCallback(CallbackBase):
+    """
+    重写callbackBase类的部分方法
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.host_ok = {}
+        self.host_unreachable = {}
+        self.host_failed = {}
+        self.task_ok = {}
+    def v2_runner_on_unreachable(self, result):
+        self.host_unreachable[result._host.get_name()] = result
+
+    def v2_runner_on_ok(self, result, **kwargs):
+        self.host_ok[result._host.get_name()] = result
+
+    def v2_runner_on_failed(self, result, **kwargs):
+        self.host_failed[result._host.get_name()] = result
+
 def playbook(host):
+    connection = 'smart'  # 连接方式 local 本地方式，smart ssh方式
+    remote_user = None  # 远程用户
+    ack_pass = None  # 提示输入密码
+    sudo = None
+    sudo_user = None
+    ask_sudo_pass = None
+    module_path = None  # 模块路径，可以指定一个自定义模块的路径
+    become = None  # 是否提权
+    become_method = None # 提权方式 默认 sudo 可以是 su
+    become_user = None # 提权后，要成为的用户，并非登录用户
+    check = False
+    diff = False
+    listhosts = None
+    listtasks = None
+    listtags = None
+    verbosity = 3
+    syntax = None
+    start_at_task = None
+    inventory = None
+
+    context.CLIARGS = ImmutableDict(
+        connection=connection,
+        remote_user=remote_user,
+        ack_pass=ack_pass,
+        sudo=sudo,
+        sudo_user=sudo_user,
+        ask_sudo_pass=ask_sudo_pass,
+        module_path=module_path,
+        become=become,
+        become_method=become_method,
+        become_user=become_user,
+        check=check,
+        verbosity=verbosity,
+        listhosts=listhosts,
+        listtasks=listtasks,
+        listtags=listtags,
+        syntax=syntax,
+        start_at_task=start_at_task,
+    )
     """
     调用 playbook
     调用playboo大致和调用ad-hoc相同，只是真正调用的是使用PlaybookExecutor
@@ -60,9 +119,10 @@ def playbook(host):
     #                   syntax=None)
 
     # 执行选项，这个类不是ansible的类，这个的功能就是为了构造参数
-    options = {'verbosity': 0, 'connection': 'smart', 'timeout': 60,}
-    ops = Values(options)
-    context._init_global_context(ops)
+    # options = {'connection': 'smart', 'syntax': None,}
+    # options = {'connection': 'smart', 'syntax': None, 'start_at_task': '' }
+    # ops = Values(options)
+    # context._init_global_context(ops)
 
     # play的执行对象和模块，这里设置hosts，其实是因为play把play_source和资产信息关联后，执行的play的时候它会去资产信息中设置的sources的hosts文件中
     # 找你在play_source中设置的hosts是否在资产管理类里面。
@@ -76,6 +136,8 @@ def playbook(host):
     # play = Play().load(play_source, variable_manager=vm, loader=dl)
 
     passwords = dict()  # 这个可以为空，因为在hosts文件中
+    # 实例化回调插件对象
+    results_callback = ResultCallback()
 
     # tqm = TaskQueueManager(
     #     inventory=im,
@@ -91,8 +153,11 @@ def playbook(host):
     # except Exception as err:
     #     print(err)
 
-    playbook = PlaybookExecutor(playbooks=["os.yml"], inventory=im, variable_manager=vm, loader=dl,passwords=passwords)
-    playbook.run()
+    playbook = PlaybookExecutor(playbooks=["./os.yml"], inventory=im, variable_manager=vm, loader=dl,passwords=passwords)
+    # playbook._tqm._stdout_callback = results_callback
+    result = playbook.run()
+
+    print(result)
 
 if __name__ == "__main__":
     playbook(host='182.61.17.159')

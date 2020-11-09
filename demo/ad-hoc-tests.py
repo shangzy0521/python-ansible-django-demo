@@ -55,7 +55,7 @@ def ad_hoc(host,module,args):
     ops = Values(options)
     context._init_global_context(ops)
 
-    play_source = dict(name="Ansible Play",hosts='myhost', gather_facts="no",
+    play_source = dict(name="Ansible Play",hosts=host, gather_facts="no",
                        tasks=[dict(action=dict(module=module, args=args))])
 
     play = Play().load(play_source, variable_manager=vm, loader=dl)

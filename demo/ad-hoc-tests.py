@@ -1,3 +1,4 @@
+import json
 import sys
 from collections import namedtuple
 from optparse import Values
@@ -173,7 +174,9 @@ def ad_hoc(host,ssh_port,ssh_user,ssh_pwd,module,args):
     for host, result in adhoc_callback.host_unreachable.items():
         result_raw["unreachable"][host] = result._result
 
-    print(result_raw)
+    # 最终打印结果，并且使用 JSON 继续格式化
+    print(json.dumps(result_raw, indent=4))
+    return json.dumps(result_raw)
 
 if __name__ == "__main__":
     ad_hoc(host='182.61.17.159', ssh_port=22, ssh_user='root', ssh_pwd='Vinc08#22', module='shell', args='whoami')

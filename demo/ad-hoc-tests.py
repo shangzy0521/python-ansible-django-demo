@@ -33,11 +33,10 @@ vm = VariableManager(loader=dl, inventory=im)
 im.add_host(host='dynamic_host')
 
 # 动态添加主机变量
-host = im.get_host("dynamic_host")
-vm.set_host_variable(host=host, varname="ansible_ssh_host", value='182.61.17.159')
-vm.set_host_variable(host=host, varname="ansible_ssh_port", value=22)
-vm.set_host_variable(host=host, varname="ansible_ssh_user", value='root')
-vm.set_host_variable(host=host, varname="ansible_ssh_pass", value='Vinc08#22')
+vm.set_host_variable(host='dynamic_host', varname="ansible_ssh_host", value='182.61.17.159')
+vm.set_host_variable(host='dynamic_host', varname="ansible_ssh_port", value=22)
+vm.set_host_variable(host='dynamic_host', varname="ansible_ssh_user", value='root')
+vm.set_host_variable(host='dynamic_host', varname="ansible_ssh_pass", value='Vinc08#22')
 
 # 此方式已不适用
 # Options = namedtuple("Options", ["connection", "remote_user", "ask_sudo_pass", "verbosity", "ack_pass",
@@ -52,7 +51,7 @@ options = {'verbosity': 0, 'connection': 'smart', 'timeout': 60,}
 ops = Values(options)
 context._init_global_context(ops)
 
-play_source = dict(name="Ansible Play",hosts='myhost', gather_facts="no",
+play_source = dict(name="Ansible Play",hosts='dynamic_host', gather_facts="no",
                    tasks=[dict(action=dict(module="shell", args="whoami"))])
 
 play = Play().load(play_source, variable_manager=vm, loader=dl)

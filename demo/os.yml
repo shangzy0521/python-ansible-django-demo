@@ -1,4 +1,4 @@
 ---
-- hosts: all
+- hosts: '182.61.17.159'
   roles:
     - os

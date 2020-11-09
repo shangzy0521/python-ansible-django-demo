@@ -23,7 +23,7 @@ from ansible.executor.playbook_executor import PlaybookExecutor
 from ansible import context
 from ansible.module_utils.common.collections import ImmutableDict
 
-def ad_hoc(host):
+def playbook(host):
     """
     调用 playbook
     调用playboo大致和调用ad-hoc相同，只是真正调用的是使用PlaybookExecutor
@@ -84,13 +84,15 @@ def ad_hoc(host):
     #     passwords=passwords,
     # )
 
-    try:
-        playbook = PlaybookExecutor(playbooks=["os.yml"], inventory=im, variable_manager=vm, loader=dl,
-                                    passwords=passwords)
-        playbook.run()
-    except Exception as err:
-        print(err)
+    # try:
+    #     playbook = PlaybookExecutor(playbooks=["os.yml"], inventory=im, variable_manager=vm, loader=dl,
+    #                                 passwords=passwords)
+    #     playbook.run()
+    # except Exception as err:
+    #     print(err)
 
+    playbook = PlaybookExecutor(playbooks=["os.yml"], inventory=im, variable_manager=vm, loader=dl,passwords=passwords)
+    playbook.run()
 
 if __name__ == "__main__":
-    ad_hoc(host='182.61.17.159')
+    playbook(host='182.61.17.159')

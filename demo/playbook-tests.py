@@ -65,17 +65,17 @@ class PlaybookCallbackBase(CallbackBase):
     def v2_runner_on_skipped(self, result):
         self.task_skipped[result._host.get_name()] = result
 
-    def v2_playbook_on_stats(self, stats):
-        hosts = sorted(stats.processed.keys())
-        for h in hosts:
-            t = stats.summarize(h)
-            self.task_status[h] = {
-                "ok": t["ok"],
-                "changed": t["changed"],
-                "unreachable": t["unreachable"],
-                "skipped": t["skipped"],
-                "failed": t["failed"]
-            }
+    # def v2_playbook_on_stats(self, stats):
+    #     hosts = sorted(stats.processed.keys())
+    #     for h in hosts:
+    #         t = stats.summarize(h)
+    #         self.task_status[h] = {
+    #             "ok": t["ok"],
+    #             "changed": t["changed"],
+    #             "unreachable": t["unreachable"],
+    #             "skipped": t["skipped"],
+    #             "failed": t["failed"],
+    #         }
 
 def playbook(host):
     connection = 'smart'  # 连接方式 local 本地方式，smart ssh方式

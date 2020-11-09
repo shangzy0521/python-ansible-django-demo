@@ -23,19 +23,13 @@ from ansible.executor.playbook_executor import PlaybookExecutor
 from ansible import context
 from ansible.module_utils.common.collections import ImmutableDict
 
-def ad_hoc(host,module,args):
+def ad_hoc(host):
     """
-    ad-hoc 调用
-    资产配置信息  这个是通过 InventoryManager和VariableManager 定义
-    执行选项 这个是通过namedtuple来定义(已不适用)
-    执行对象和模块 通过dict()来定义
-    定义play 通过Play来定义
-    最后通过 TaskQueueManager 的实例来执行play
+    调用 playbook
+    调用playboo大致和调用ad-hoc相同，只是真正调用的是使用PlaybookExecutor
     :return:
     """
     host = host
-    module = module
-    args = args
 
     # 资产配置信息
     # InventoryManager类的调用方式
@@ -72,27 +66,31 @@ def ad_hoc(host,module,args):
 
     # play的执行对象和模块，这里设置hosts，其实是因为play把play_source和资产信息关联后，执行的play的时候它会去资产信息中设置的sources的hosts文件中
     # 找你在play_source中设置的hosts是否在资产管理类里面。
-    play_source = dict(name="Ansible Play",  # 任务名称
-                       hosts=host,  # 目标主机，可以填写具体主机也可以是主机组名称
-                       gather_facts="no",  # 是否收集配置信息
-                       # tasks是具体执行的任务，列表形式，每个具体任务都是一个字典
-                       tasks=[dict(action=dict(module=module, args=args))])
+    # play_source = dict(name="Ansible Play",  # 任务名称
+    #                    hosts=host,  # 目标主机，可以填写具体主机也可以是主机组名称
+    #                    gather_facts="no",  # 是否收集配置信息
+    #                    # tasks是具体执行的任务，列表形式，每个具体任务都是一个字典
+    #                    tasks=[dict(action=dict(module=module, args=args))])
 
     # 定义play
-    play = Play().load(play_source, variable_manager=vm, loader=dl)
+    # play = Play().load(play_source, variable_manager=vm, loader=dl)
 
     passwords = dict()  # 这个可以为空，因为在hosts文件中
 
-    tqm = TaskQueueManager(
-        inventory=im,
-        variable_manager=vm,
-        loader=dl,
-        passwords=passwords,
-    )
+    # tqm = TaskQueueManager(
+    #     inventory=im,
+    #     variable_manager=vm,
+    #     loader=dl,
+    #     passwords=passwords,
+    # )
 
-    result = tqm.run(play)
-    print(result)
+    try:
+        playbook = PlaybookExecutor(playbooks=["os.yml"], inventory=im, variable_manager=vm, loader=dl,
+                                    passwords=passwords)
+        playbook.run()
+    except Exception as err:
+        print(err)
+
 
 if __name__ == "__main__":
-    ad_hoc(host='182.61.17.159', module='shell', args='whoami')
-    ad_hoc(host='182.61.17.159', module='shell', args='ls /tmp')
+    ad_hoc(host='182.61.17.159')

@@ -1,0 +1,6 @@
+---
+- name: get hostname
+  shell: hostname
+  register: info
+- name: display hostname
+  debug: msg="The variable is {{info}}"

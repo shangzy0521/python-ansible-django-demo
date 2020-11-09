@@ -24,6 +24,7 @@ from ansible.module_utils.common.collections import ImmutableDict
 # InventoryManager类的调用方式
 dl = DataLoader()
 # loader= 表示是用什么方式来读取文件  sources=就是资产文件列表，里面可以是相对路径也可以是绝对路径
+# sources 如果为空会抛出一个WARNING 建议使用一个hosts文件 文件可以为空
 im = InventoryManager(loader=dl, sources=["hosts"])
 variable_manager = VariableManager(loader=dl, inventory=my_inventory)
 # my_inventory.add_group('mygroup')

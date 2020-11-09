@@ -68,3 +68,4 @@ def ad_hoc(host,module,args):
 
 if __name__ == "__main__":
     ad_hoc(host='182.61.17.159', module='shell', args='whoami')
+    ad_hoc(host='182.61.17.159', module='shell', args='ls /tmp')

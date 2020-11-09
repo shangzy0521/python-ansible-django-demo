@@ -37,6 +37,9 @@ def ad_hoc(host,module,args):
     module = module
     args = args
 
+    # shangxiawen
+
+
     # 资产配置信息
     # InventoryManager类的调用方式
     dl = DataLoader()

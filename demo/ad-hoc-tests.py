@@ -136,6 +136,8 @@ def ad_hoc(host,ssh_port,ssh_user,ssh_pwd,module,args):
     vm.set_host_variable(host=host, varname="ansible_ssh_user", value=ssh_user)
     vm.set_host_variable(host=host, varname="ansible_ssh_pass", value=ssh_pwd)
 
+    vm.extra_vars = '{"repo":{"branch":"exec_refactor"}}'
+
     # play的执行对象和模块，这里设置hosts，其实是因为play把play_source和资产信息关联后，执行的play的时候它会去资产信息中设置的sources的hosts文件中
     # 找你在play_source中设置的hosts是否在资产管理类里面。
     play_source = dict(name="Ansible ad-hoc Play",  # 任务名称
@@ -179,5 +181,5 @@ def ad_hoc(host,ssh_port,ssh_user,ssh_pwd,module,args):
     return json.dumps(result_raw)
 
 if __name__ == "__main__":
-    ad_hoc(host='182.61.17.159', ssh_port=22, ssh_user='root', ssh_pwd='Vinc08#22', module='shell', args='whoami')
-    ad_hoc(host='182.61.17.159', ssh_port=22, ssh_user='root', ssh_pwd='Vinc08#22', module='shell', args='ls /tmp')
+    # ad_hoc(host='182.61.17.159', ssh_port=22, ssh_user='root', ssh_pwd='Vinc08#22', module='shell', args='whoami')
+    ad_hoc(host='182.61.17.159', ssh_port=22, ssh_user='root', ssh_pwd='Vinc08#22', module='shell', args='echo ${aa}')

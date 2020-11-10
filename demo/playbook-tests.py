@@ -3,11 +3,11 @@ import sys
 from collections import namedtuple
 from optparse import Values
 
+# https://docs.ansible.com/ansible/latest/dev_guide/developing_api.html#python-api
 # 核心类
 # 用于读取YAML和JSON格式的文件
 from ansible.parsing.dataloader import DataLoader
-# 用于存储各类变量信息
-from ansible.plugins.callback import CallbackBase
+# 用于存储各类变量信息,用来管理变量，包括主机、组、扩展等变量
 from ansible.vars.manager import VariableManager
 # 用于导入资产文件
 from ansible.inventory.manager import InventoryManager

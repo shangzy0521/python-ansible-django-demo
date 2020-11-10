@@ -3,10 +3,11 @@ import sys
 from collections import namedtuple
 from optparse import Values
 
+# https://docs.ansible.com/ansible/latest/dev_guide/developing_api.html#python-api
 # 核心类
 # 用于读取YAML和JSON格式的文件
 from ansible.parsing.dataloader import DataLoader
-# 用于存储各类变量信息
+# 用于存储各类变量信息,用来管理变量，包括主机、组、扩展等变量
 from ansible.vars.manager import VariableManager
 # 用于导入资产文件
 from ansible.inventory.manager import InventoryManager
@@ -136,7 +137,9 @@ def ad_hoc(host,ssh_port,ssh_user,ssh_pwd,module,args):
     vm.set_host_variable(host=host, varname="ansible_ssh_user", value=ssh_user)
     vm.set_host_variable(host=host, varname="ansible_ssh_pass", value=ssh_pwd)
 
-    vm.extra_vars = '{"repo":{"branch":"exec_refactor"}}'
+    # 添加扩展变量
+    vm.extra_vars['version'] = '1.0'
+    vm.extra_vars['os'] = 'linux'
 
     # play的执行对象和模块，这里设置hosts，其实是因为play把play_source和资产信息关联后，执行的play的时候它会去资产信息中设置的sources的hosts文件中
     # 找你在play_source中设置的hosts是否在资产管理类里面。
@@ -182,4 +185,4 @@ def ad_hoc(host,ssh_port,ssh_user,ssh_pwd,module,args):
 
 if __name__ == "__main__":
     # ad_hoc(host='182.61.17.159', ssh_port=22, ssh_user='root', ssh_pwd='Vinc08#22', module='shell', args='whoami')
-    ad_hoc(host='182.61.17.159', ssh_port=22, ssh_user='root', ssh_pwd='Vinc08#22', module='shell', args='echo ${aa}')
+    ad_hoc(host='182.61.17.159', ssh_port=22, ssh_user='root', ssh_pwd='Vinc08#22', module='shell', args='echo {{version}} {{os}}')

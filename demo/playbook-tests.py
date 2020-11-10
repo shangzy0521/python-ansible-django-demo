@@ -77,7 +77,19 @@ class PlaybookCallbackBase(CallbackBase):
     #             "failed": t["failed"],
     #         }
 
-def playbook(host,extra_vars):
+def playbook(host,ssh_port,ssh_user,ssh_pwd,extra_vars):
+    """
+    调用 playbook
+    调用playboo大致和调用ad-hoc相同，只是真正调用的是使用PlaybookExecutor
+    :return:
+    """
+    host = host
+    ssh_port = ssh_port
+    ssh_user = ssh_user
+    ssh_pwd = ssh_pwd
+    extra_vars = extra_vars
+
+    # 上下文
     connection = 'smart'  # 连接方式 local 本地方式，smart ssh方式
     remote_user = None  # 远程用户
     ack_pass = None  # 提示输入密码
@@ -137,10 +149,10 @@ def playbook(host,extra_vars):
     im.add_host(host=host)
 
     # 动态添加主机变量
-    vm.set_host_variable(host=host, varname="ansible_ssh_host", value='182.61.17.159')
-    vm.set_host_variable(host=host, varname="ansible_ssh_port", value=22)
-    vm.set_host_variable(host=host, varname="ansible_ssh_user", value='root')
-    vm.set_host_variable(host=host, varname="ansible_ssh_pass", value='Vinc08#22')
+    vm.set_host_variable(host=host, varname="ansible_ssh_host", value=host)
+    vm.set_host_variable(host=host, varname="ansible_ssh_port", value=ssh_port)
+    vm.set_host_variable(host=host, varname="ansible_ssh_user", value=ssh_user)
+    vm.set_host_variable(host=host, varname="ansible_ssh_pass", value=ssh_pwd)
 
     # 添加扩展变量
     for i in extra_vars:
@@ -178,4 +190,4 @@ def playbook(host,extra_vars):
 
 
 if __name__ == "__main__":
-    playbook(host='182.61.17.159',extra_vars=dict(version='1.0',os='linux'))
+    playbook(host='182.61.17.159',ssh_port=22,ssh_user='root',ssh_pwd='Vinc08#22',extra_vars=dict(version='1.0',os='linux'))

@@ -192,5 +192,5 @@ def playbook(hostip,file,ssh_user,ssh_pwd,extra_vars,ssh_port=22):
 
 
 if __name__ == "__main__":
-    # playbook(hostip='182.61.17.159',file='playbook/os.yml',ssh_port=22,ssh_user='root',ssh_pwd='Vinc08#22',extra_vars=dict(version='1.0',os='linux'))
-    playbook(hostip='182.61.17.159',file='playbook/os.yml',ssh_user='root',ssh_pwd='Vinc08#22',extra_vars=dict(version='1.0',os='linux'))
+    # playbook(hostip='182.61.17.159',file='playbook/os.yml',ssh_port=22,ssh_user='testuser',ssh_pwd='Vinc55#67',extra_vars=dict(version='1.0',os='linux'))
+    playbook(hostip='182.61.17.159',file='playbook/os.yml',ssh_user='testuser',ssh_pwd='Vinc55#67',extra_vars=dict(version='1.0',os='linux'))

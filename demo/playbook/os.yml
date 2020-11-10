@@ -1,5 +1,5 @@
 ---
-- hosts: '182.61.17.159'
+- hosts: '{{host}}'
   gather_facts: no
   roles:
     - os

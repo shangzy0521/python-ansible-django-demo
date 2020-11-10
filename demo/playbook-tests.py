@@ -77,13 +77,13 @@ class PlaybookCallbackBase(CallbackBase):
     #             "failed": t["failed"],
     #         }
 
-def playbook(host,file,ssh_port,ssh_user,ssh_pwd,extra_vars):
+def playbook(hostip,file,ssh_user,ssh_pwd,extra_vars,ssh_port=22):
     """
     调用 playbook
     调用playboo大致和调用ad-hoc相同，只是真正调用的是使用PlaybookExecutor
     :return:
     """
-    host = host
+    hostip = hostip
     playbook_file = file
     ssh_port = ssh_port
     ssh_user = ssh_user
@@ -135,7 +135,6 @@ def playbook(host,file,ssh_port,ssh_user,ssh_pwd,extra_vars):
     调用playboo大致和调用ad-hoc相同，只是真正调用的是使用PlaybookExecutor
     :return:
     """
-    host = host
 
     # 资产配置信息
     # InventoryManager类的调用方式
@@ -147,15 +146,17 @@ def playbook(host,file,ssh_port,ssh_user,ssh_pwd,extra_vars):
     vm = VariableManager(loader=dl, inventory=im)
 
     # 动态添加主机
-    im.add_host(host=host)
+    my_host = Host(name=hostip)
+    im.add_host(host=hostip)
 
     # 动态添加主机变量
-    vm.set_host_variable(host=host, varname="ansible_ssh_host", value=host)
-    vm.set_host_variable(host=host, varname="ansible_ssh_port", value=ssh_port)
-    vm.set_host_variable(host=host, varname="ansible_ssh_user", value=ssh_user)
-    vm.set_host_variable(host=host, varname="ansible_ssh_pass", value=ssh_pwd)
+    vm.set_host_variable(host=hostip, varname="ansible_ssh_host", value=hostip)
+    vm.set_host_variable(host=hostip, varname="ansible_ssh_port", value=ssh_port)
+    vm.set_host_variable(host=hostip, varname="ansible_ssh_user", value=ssh_user)
+    vm.set_host_variable(host=hostip, varname="ansible_ssh_pass", value=ssh_pwd)
 
     # 添加扩展变量
+    vm.extra_vars['host'] = hostip
     for i in extra_vars:
         vm.extra_vars[i] = extra_vars[i]
 
@@ -191,4 +192,5 @@ def playbook(host,file,ssh_port,ssh_user,ssh_pwd,extra_vars):
 
 
 if __name__ == "__main__":
-    playbook(host='182.61.17.159',file='playbook/os.yml',ssh_port=22,ssh_user='root',ssh_pwd='Vinc08#22',extra_vars=dict(version='1.0',os='linux'))
+    # playbook(hostip='182.61.17.159',file='playbook/os.yml',ssh_port=22,ssh_user='root',ssh_pwd='Vinc08#22',extra_vars=dict(version='1.0',os='linux'))
+    playbook(hostip='182.61.17.159',file='playbook/os.yml',ssh_user='root',ssh_pwd='Vinc08#22',extra_vars=dict(version='1.0',os='linux'))

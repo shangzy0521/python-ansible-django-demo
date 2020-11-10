@@ -60,7 +60,7 @@ class AdhocCallbackBase(CallbackBase):
         """
         self.host_failed[result._host.get_name()] = result
 
-def ad_hoc(host,ssh_port,ssh_user,ssh_pwd,module,args):
+def ad_hoc(host,ssh_port,ssh_user,ssh_pwd,module,args,extra_vars):
     """
     ad-hoc 调用
     资产配置信息  这个是通过 InventoryManager和VariableManager 定义
@@ -76,6 +76,7 @@ def ad_hoc(host,ssh_port,ssh_user,ssh_pwd,module,args):
     ssh_pwd = ssh_pwd
     module = module
     args = args
+    extra_vars = extra_vars
 
     # 上下文
     connection = 'smart'  # 连接方式 local 本地方式，smart ssh方式
@@ -138,8 +139,8 @@ def ad_hoc(host,ssh_port,ssh_user,ssh_pwd,module,args):
     vm.set_host_variable(host=host, varname="ansible_ssh_pass", value=ssh_pwd)
 
     # 添加扩展变量
-    vm.extra_vars['version'] = '1.0'
-    vm.extra_vars['os'] = 'linux'
+    for i in extra_vars:
+        vm.extra_vars[i] = extra_vars[i]
 
     # play的执行对象和模块，这里设置hosts，其实是因为play把play_source和资产信息关联后，执行的play的时候它会去资产信息中设置的sources的hosts文件中
     # 找你在play_source中设置的hosts是否在资产管理类里面。
@@ -185,4 +186,4 @@ def ad_hoc(host,ssh_port,ssh_user,ssh_pwd,module,args):
 
 if __name__ == "__main__":
     # ad_hoc(host='182.61.17.159', ssh_port=22, ssh_user='root', ssh_pwd='Vinc08#22', module='shell', args='whoami')
-    ad_hoc(host='182.61.17.159', ssh_port=22, ssh_user='root', ssh_pwd='Vinc08#22', module='shell', args='echo {{version}} {{os}}')
+    ad_hoc(host='182.61.17.159', ssh_port=22, ssh_user='root', ssh_pwd='Vinc08#22',extra_vars=dict(version='1.0',os='linux'), module='shell', args='echo {{version}} {{os}}')

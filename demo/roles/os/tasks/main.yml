@@ -3,4 +3,4 @@
   shell: hostname
   register: info
 - name: display hostname
-  debug: msg="The variable is {{info}}"
+  debug: msg="The variable is {{info}} {{version}} {{os}}"

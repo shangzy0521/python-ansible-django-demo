@@ -77,7 +77,7 @@ class PlaybookCallbackBase(CallbackBase):
     #             "failed": t["failed"],
     #         }
 
-def playbook(host):
+def playbook(host,extra_vars):
     connection = 'smart'  # 连接方式 local 本地方式，smart ssh方式
     remote_user = None  # 远程用户
     ack_pass = None  # 提示输入密码
@@ -142,6 +142,9 @@ def playbook(host):
     vm.set_host_variable(host=host, varname="ansible_ssh_user", value='root')
     vm.set_host_variable(host=host, varname="ansible_ssh_pass", value='Vinc08#22')
 
+    # 添加扩展变量
+    for i in extra_vars:
+        vm.extra_vars[i] = extra_vars[i]
 
     passwords = dict()  # 这个可以为空，因为在hosts文件中
 
@@ -175,4 +178,4 @@ def playbook(host):
 
 
 if __name__ == "__main__":
-    playbook(host='182.61.17.159')
+    playbook(host='182.61.17.159',extra_vars=dict(version='1.0',os='linux'))

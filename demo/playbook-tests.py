@@ -77,13 +77,14 @@ class PlaybookCallbackBase(CallbackBase):
     #             "failed": t["failed"],
     #         }
 
-def playbook(host,ssh_port,ssh_user,ssh_pwd,extra_vars):
+def playbook(host,file,ssh_port,ssh_user,ssh_pwd,extra_vars):
     """
     调用 playbook
     调用playboo大致和调用ad-hoc相同，只是真正调用的是使用PlaybookExecutor
     :return:
     """
     host = host
+    playbook_file = file
     ssh_port = ssh_port
     ssh_user = ssh_user
     ssh_pwd = ssh_pwd
@@ -161,7 +162,7 @@ def playbook(host,ssh_port,ssh_user,ssh_pwd,extra_vars):
     passwords = dict()  # 这个可以为空，因为在hosts文件中
 
 
-    playbook = PlaybookExecutor(playbooks=["./os.yml"], inventory=im, variable_manager=vm, loader=dl,passwords=passwords)
+    playbook = PlaybookExecutor(playbooks=[playbook_file,], inventory=im, variable_manager=vm, loader=dl,passwords=passwords)
     playbook_callback = PlaybookCallbackBase()
     playbook._tqm._stdout_callback = playbook_callback  # 配置callback
     # result = playbook.run()
@@ -190,4 +191,4 @@ def playbook(host,ssh_port,ssh_user,ssh_pwd,extra_vars):
 
 
 if __name__ == "__main__":
-    playbook(host='182.61.17.159',ssh_port=22,ssh_user='root',ssh_pwd='Vinc08#22',extra_vars=dict(version='1.0',os='linux'))
+    playbook(host='182.61.17.159',file='playbook/os.yml',ssh_port=22,ssh_user='root',ssh_pwd='Vinc08#22',extra_vars=dict(version='1.0',os='linux'))

@@ -191,7 +191,7 @@ class AnsibleAdhoc():
             result_raw["unreachable"][host] = result._result
 
         # 最终打印结果，并且使用 JSON 继续格式化
-        print(json.dumps(result_raw, indent=4))
+        # print(json.dumps(result_raw, indent=4))
         return json.dumps(result_raw)
 
 if __name__ == "__main__":
@@ -200,5 +200,5 @@ if __name__ == "__main__":
     # ad_hoc(hostip='182.61.17.159', ssh_user='testuser', ssh_pwd='Vinc55#67',extra_vars=dict(version='1.0',os='linux'), module='shell', args='echo {{version}} {{os}}')
 
     ansible1 = AnsibleAdhoc()
-    ansible1.run_adhoc(hostip='182.61.17.159', ssh_user='testuser', ssh_pwd='Vinc55#67',extra_vars=dict(version='1.0',os='linux'), module='shell', args='echo {{version}} {{os}}')
-
+    result = ansible1.run_adhoc(hostip='182.61.17.159', ssh_user='testuser', ssh_pwd='Vinc55#67',extra_vars=dict(version='1.0',os='linux'), module='shell', args='echo {{version}} {{os}}')
+    print(result)

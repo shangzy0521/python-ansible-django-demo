@@ -1,5 +1,0 @@
----
-- hosts: '{{host}}'
-  gather_facts: no
-  roles:
-    - os

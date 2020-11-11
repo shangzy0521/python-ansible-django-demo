@@ -1,6 +1,0 @@
----
-#- name: get hostname
-#  shell: hostname
-#  register: info
-- name: display variable
-  debug: msg="The variable is {{version}} {{os}}"

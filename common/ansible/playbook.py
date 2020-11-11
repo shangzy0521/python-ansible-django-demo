@@ -7,6 +7,8 @@ from optparse import Values
 # https://docs.ansible.com/ansible/latest/dev_guide/developing_api.html#python-api
 # 核心类
 # 用于读取YAML和JSON格式的文件
+from pathlib import Path
+
 from ansible.parsing.dataloader import DataLoader
 # 用于存储各类变量信息,用来管理变量，包括主机、组、扩展等变量
 from ansible.vars.manager import VariableManager
@@ -128,10 +130,9 @@ class AnsiblePlaybook():
             start_at_task=start_at_task,
         )
 
-        program_pwd = os.getcwd()
+        self.rogram_pwd = str(Path(__file__).resolve().parent)
         self.sep = os.sep
-        self.ansible_dir = program_pwd + self.sep + 'common' + self.sep + 'ansible'
-        self.inventory_file = self.ansible_dir + self.sep + 'hosts'
+        self.inventory_file = self.rogram_pwd + self.sep + 'hosts'
 
     def run_playbook(self,hostip,file,ssh_user,ssh_pwd,extra_vars,ssh_port=22):
         """
@@ -140,7 +141,7 @@ class AnsiblePlaybook():
             :return:
         """
         self.hostip = hostip
-        self.playbook_file = self.ansible_dir + self.sep + file
+        self.playbook_file = self.rogram_pwd + self.sep + file
         self.ssh_port = ssh_port
         self.ssh_user = ssh_user
         self.ssh_pwd = ssh_pwd

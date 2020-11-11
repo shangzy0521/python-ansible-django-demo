@@ -7,6 +7,8 @@ from optparse import Values
 # https://docs.ansible.com/ansible/latest/dev_guide/developing_api.html#python-api
 # 核心类
 # 用于读取YAML和JSON格式的文件
+from pathlib import Path
+
 from ansible.parsing.dataloader import DataLoader
 # 用于存储各类变量信息,用来管理变量，包括主机、组、扩展等变量
 from ansible.vars.manager import VariableManager
@@ -110,10 +112,9 @@ class AnsibleAdhoc():
             start_at_task=start_at_task,
         )
 
-        program_pwd = os.getcwd()
+        self.rogram_pwd = str(Path(__file__).resolve().parent)
         self.sep = os.sep
-        self.ansible_dir = program_pwd + self.sep + 'common' + self.sep + 'ansible'
-        self.inventory_file = self.ansible_dir + self.sep + 'hosts'
+        self.inventory_file = self.rogram_pwd + self.sep + 'hosts'
 
 
     def run_adhoc(self,hostip,ssh_user,ssh_pwd,module,args,extra_vars,ssh_port=22):

@@ -1,4 +1,4 @@
-# Ansible demo in Django
+# Ansible API demo in Django
 关于ansible在python中的使用模型
 
 安装 requirements.txt中的包

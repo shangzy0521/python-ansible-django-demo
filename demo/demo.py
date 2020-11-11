@@ -12,7 +12,7 @@ def test():
     print('----------')
 
     ansible2 = AnsiblePlaybook()
-    result = ansible2.run_playbook(hostip='182.61.17.159', file='playbook/os.yml', ssh_user='testuser',
+    result = ansible2.run_playbook(hostip='182.61.17.159', file='playbooks/os.yml', ssh_user='testuser',
                                    ssh_pwd='Vinc55#67', extra_vars=dict(version='1.0', os='linux'))
     print('~~~~~~~~~~')
     print(result)
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     print('----------')
 
     ansible2 = AnsiblePlaybook()
-    result = ansible2.run_playbook(hostip='182.61.17.159', file='playbook/os.yml', ssh_user='testuser',
+    result = ansible2.run_playbook(hostip='182.61.17.159', file='playbooks/os.yml', ssh_user='testuser',
                                    ssh_pwd='Vinc55#67', extra_vars=dict(version='1.0', os='linux'))
     print('~~~~~~~~~~')
     print(result)

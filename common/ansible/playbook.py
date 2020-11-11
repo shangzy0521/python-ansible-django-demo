@@ -136,7 +136,7 @@ class AnsiblePlaybook():
 
     def run_playbook(self,hostip,file,ssh_user,ssh_pwd,extra_vars,ssh_port=22):
         """
-            调用 playbook
+            调用 playbooks
             调用playboo大致和调用ad-hoc相同，只是真正调用的是使用PlaybookExecutor
             :return:
         """
@@ -177,7 +177,7 @@ class AnsiblePlaybook():
         playbook = PlaybookExecutor(playbooks=[self.playbook_file,], inventory=im, variable_manager=vm, loader=dl,passwords=passwords)
         playbook_callback = PlaybookCallbackBase()
         playbook._tqm._stdout_callback = playbook_callback  # 配置callback
-        # result = playbook.run()
+        # result = playbooks.run()
         # print(result)
         playbook.run()
         # print(callback.task_ok.items())  # 它会返回2个东西，一个主机一个是执行结果对象
@@ -203,9 +203,9 @@ class AnsiblePlaybook():
 
 
 if __name__ == "__main__":
-    # playbook(hostip='182.61.17.159',file='playbook/os.yml',ssh_port=22,ssh_user='testuser',ssh_pwd='Vinc55#67',extra_vars=dict(version='1.0',os='linux'))
+    # playbooks(hostip='182.61.17.159',file='playbooks/os.yml',ssh_port=22,ssh_user='testuser',ssh_pwd='Vinc55#67',extra_vars=dict(version='1.0',os='linux'))
 
     ansible1 = AnsiblePlaybook()
-    result = ansible1.run_playbook(hostip='182.61.17.159',file='playbook/os.yml',ssh_user='testuser',ssh_pwd='Vinc55#67',extra_vars=dict(version='1.0',os='linux'))
+    result = ansible1.run_playbook(hostip='182.61.17.159', file='playbooks/os.yml', ssh_user='testuser', ssh_pwd='Vinc55#67', extra_vars=dict(version='1.0', os='linux'))
     print(result)
 

@@ -112,12 +112,12 @@ class AnsibleAdhoc():
 
     def run_adhoc(self,hostip,ssh_user,ssh_pwd,module,args,extra_vars,ssh_port=22):
         """
-        ad-hoc 调用
-        资产配置信息  这个是通过 InventoryManager和VariableManager 定义
-        执行选项 这个是通过namedtuple来定义(已不适用)
-        执行对象和模块 通过dict()来定义
-        定义play 通过Play来定义
-        最后通过 TaskQueueManager 的实例来执行play
+            ad-hoc 调用
+            资产配置信息  这个是通过 InventoryManager和VariableManager 定义
+            执行选项 这个是通过namedtuple来定义(已不适用)
+            执行对象和模块 通过dict()来定义
+            定义play 通过Play来定义
+            最后通过 TaskQueueManager 的实例来执行play
         :return:
         """
         self.hostip = hostip

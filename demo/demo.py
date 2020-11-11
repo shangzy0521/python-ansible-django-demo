@@ -1,5 +1,3 @@
-from django.views.decorators.csrf import csrf_exempt
-
 from common.ansible.playbook import AnsiblePlaybook
 from common.ansible.adhoc import AnsibleAdhoc
 

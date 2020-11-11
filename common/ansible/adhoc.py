@@ -1,5 +1,6 @@
 import json
 import sys
+import os
 from collections import namedtuple
 from optparse import Values
 
@@ -26,6 +27,7 @@ from ansible.plugins.callback import CallbackBase
 
 from ansible import context
 from ansible.module_utils.common.collections import ImmutableDict
+
 
 class AdhocCallbackBase(CallbackBase):
     """
@@ -108,6 +110,10 @@ class AnsibleAdhoc():
             start_at_task=start_at_task,
         )
 
+        program_pwd = os.getcwd()
+        self.sep = os.sep
+        self.ansible_dir = program_pwd + self.sep + 'common' + self.sep + 'ansible'
+        self.inventory_file = self.ansible_dir + self.sep + 'hosts'
 
 
     def run_adhoc(self,hostip,ssh_user,ssh_pwd,module,args,extra_vars,ssh_port=22):
@@ -133,7 +139,7 @@ class AnsibleAdhoc():
         dl = DataLoader()
         # loader= 表示是用什么方式来读取文件  sources=就是资产文件列表，里面可以是相对路径也可以是绝对路径
         # sources 如果为空会抛出一个WARNING 建议使用一个hosts文件 文件可以为空
-        im = InventoryManager(loader=dl, sources=["hosts"])
+        im = InventoryManager(loader=dl, sources=[self.inventory_file])
         # VariableManager类的调用方式
         vm = VariableManager(loader=dl, inventory=im)
 

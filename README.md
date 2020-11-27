@@ -1,6 +1,8 @@
 # Ansible API demo in Django
 关于ansible在python中的使用模型
 
+实验python 3.8 ansible 2.10.3
+
 安装 requirements.txt中的包
 pycharm 将工程Run起，然后运行demo下的test.py
 
